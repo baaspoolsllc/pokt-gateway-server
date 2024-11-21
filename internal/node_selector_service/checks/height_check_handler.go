@@ -17,6 +17,10 @@ const (
 	defaultCheckPenalty                = time.Minute * 5
 )
 
+var (
+	defaultHeaders = map[string]string{"content-type": "application/json"}
+)
+
 type HeightJsonParser func(response string) (uint64, error)
 
 // PerformDefaultHeightCheck is the default implementation of a height check by:
@@ -26,12 +30,13 @@ type HeightJsonParser func(response string) (uint64, error)
 // 3. Filtering out nodes that are returning a height out of the zScore threshold
 // 4. Punishing the nodes with defaultCheckPenalty that exceed the height tolerance.
 func PerformDefaultHeightCheck(check *Check, payload string, path string, parseHeight HeightJsonParser, logger *zap.Logger) {
-
-	logger.Sugar().Infow("running default height check", "chain", check.NodeList[0].GetChain())
+	chainId := check.NodeList[0].GetChain()
+	logger.Sugar().Infow("running default height check", "chain", chainId)
+	checkHeaders := GetFixedHeaders(check.ChainConfiguration, chainId, defaultHeaders)
 
 	var nodesResponded []*models.QosNode
 	// Send request to all nodes
-	relayResponses := SendRelaysAsync(check.PocketRelayer, getEligibleHeightCheckNodes(check.NodeList), payload, "POST", path)
+	relayResponses := SendRelaysAsync(check.PocketRelayer, getEligibleHeightCheckNodes(check.NodeList), payload, "POST", path, checkHeaders)
 
 	// Process relay responses
 	for resp := range relayResponses {

@@ -167,6 +167,7 @@ func (r BasicClient) makeRequest(endpoint string, method string, requestData any
 	}()
 
 	request.Header.SetUserAgent(r.userAgent)
+	request.Header.SetContentType("application/json")
 
 	if hostOverride != nil {
 		request.SetRequestURI(*hostOverride + endpoint)

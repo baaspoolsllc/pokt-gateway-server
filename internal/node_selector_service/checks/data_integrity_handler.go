@@ -20,6 +20,10 @@ const (
 	dataIntegrityHeightLookbackDefault = 25
 )
 
+var (
+	dataIntegrityHeadersDefault = map[string]string{"content-type": "application/json"}
+)
+
 type nodeHashRspPair struct {
 	node            *models.QosNode
 	blockIdentifier string
@@ -47,10 +51,12 @@ func PerformDataIntegrityCheck(check *Check, calculatePayload GetBlockByNumberPa
 
 	var nodeResponsePairs []*nodeHashRspPair
 
-	// find a random block to search that nodes should have access too
-	blockNumberToSearch := sourceOfTruth.GetLastKnownHeight() - uint64(GetDataIntegrityHeightLookback(check.ChainConfiguration, sourceOfTruth.GetChain(), dataIntegrityHeightLookbackDefault))
+	chainId := sourceOfTruth.GetChain()
+	checkHeaders := GetFixedHeaders(check.ChainConfiguration, chainId, dataIntegrityHeadersDefault)
 
-	attestationResponses := SendRelaysAsync(check.PocketRelayer, getEligibleDataIntegrityCheckNodes(check.NodeList), calculatePayload(blockNumberToSearch), "POST", path)
+	// find a random block to search that nodes should have access too
+	blockNumberToSearch := sourceOfTruth.GetLastKnownHeight() - uint64(GetDataIntegrityHeightLookback(check.ChainConfiguration, chainId, dataIntegrityHeightLookbackDefault))
+	attestationResponses := SendRelaysAsync(check.PocketRelayer, getEligibleDataIntegrityCheckNodes(check.NodeList), calculatePayload(blockNumberToSearch), "POST", path, checkHeaders)
 	for rsp := range attestationResponses {
 
 		if rsp.Error != nil {

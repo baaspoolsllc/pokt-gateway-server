@@ -35,11 +35,18 @@ func (c *RelayController) HandleRelay(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	contentType := string(ctx.Request.Header.Peek("content-type"))
+	if contentType == "" {
+		contentType = "application/json"
+	}
+
 	relay, err := c.relayer.SendRelay(&models.SendRelayRequest{
 		Payload: &models.Payload{
-			Data:   string(ctx.PostBody()),
-			Method: string(ctx.Method()),
-			Path:   path,
+			// TODO: the best here will been able to get the chain configuration to use the configure headers.
+			Headers: map[string]string{"content-type": contentType},
+			Data:    string(ctx.PostBody()),
+			Method:  string(ctx.Method()),
+			Path:    path,
 		},
 		Chain: chainID,
 	})

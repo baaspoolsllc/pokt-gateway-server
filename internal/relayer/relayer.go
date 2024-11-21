@@ -216,6 +216,11 @@ func (r *Relayer) altruistRelay(req *models.SendRelayRequest) (*models.SendRelay
 		fasthttp.ReleaseResponse(response)
 	}()
 
+	checkHeaders := checks.GetFixedHeaders(r.chainConfigurationRegistry, req.Chain, map[string]string{"content-type": "application/json"})
+	for key, value := range checkHeaders {
+		request.Header.Set(key, value)
+	}
+
 	requestTimeout := r.getAltruistRequestTimeout(req.Chain)
 	request.Header.SetUserAgent(r.userAgent)
 	request.SetRequestURI(chainConfig.AltruistUrl.String)

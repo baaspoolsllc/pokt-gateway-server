@@ -139,6 +139,7 @@ type GetChainConfigurationsRow struct {
 	TopBucketP90latencyDuration      pgtype.Varchar   `json:"top_bucket_p90latency_duration"`
 	HeightCheckBlockTolerance        *int32           `json:"height_check_block_tolerance"`
 	DataIntegrityCheckLookbackHeight *int32           `json:"data_integrity_check_lookback_height"`
+	FixedHeaders                     *pgtype.JSON     `json:"fixed_headers"`
 }
 
 // GetChainConfigurations implements Querier.GetChainConfigurations.

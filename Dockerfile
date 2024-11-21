@@ -25,7 +25,7 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/main .
 
 # Set default value for port exposed
-ENV HTTP_SERVER_PORT 8080
+ENV HTTP_SERVER_PORT=8080
 
 EXPOSE $HTTP_SERVER_PORT
 
